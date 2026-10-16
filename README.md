@@ -1,50 +1,76 @@
-# Welcome to your Expo app 👋
+# Receitário
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicativo de receitas em React Native com Expo, desenvolvido na disciplina de
+Desenvolvimento para Dispositivos Móveis (Unochapecó).
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Rodando o projeto
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Abra pelo Expo Go lendo o QR code, ou pressione `w` para abrir no navegador.
 
-## Learn more
+O projeto usa **Expo SDK 57**. Se o Expo Go reclamar de incompatibilidade,
+atualize o app no celular ou rode `npx expo install expo@^57.0.0 && npx expo install --fix`.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Organização
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+O projeto segue Atomic Design: a interface reutilizável fica em `components/`
+e as rotas ficam em `app/`.
 
-## Join the community
+```
+app/
+├── index.tsx              Redireciona para o login
+├── _layout.tsx            Stack raiz
+├── (auth)/
+│   ├── login.tsx
+│   └── cadastro.tsx
+└── (tabs)/
+    ├── _layout.tsx        Bottom tabs
+    ├── index.tsx          Receitas (lista + formulário)
+    ├── porcoes.tsx        Contador de porções
+    └── componentes.tsx    Vitrine dos componentes
 
-Join our community of developers creating universal apps.
+components/
+├── atoms/                 Peças mínimas
+│   ├── Chip.tsx
+│   ├── InputField.tsx
+│   ├── OutlineButton.tsx
+│   ├── PasswordField.tsx
+│   ├── PrimaryButton.tsx
+│   └── Title.tsx
+├── molecules/             Átomos combinados com uma função clara
+│   ├── LoginForm.tsx
+│   ├── RecipeForm.tsx
+│   └── RecipeListItem.tsx
+└── organisms/             Blocos maiores
+    └── RecipeList.tsx
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### A regra que mantém isso organizado
+
+- **Átomo**: não guarda estado nem conhece tela nenhuma. Recebe props e desenha.
+- **Molécula**: combina átomos e pode guardar o estado dos próprios campos,
+  mas não navega — avisa quem a usa através de um callback.
+- **Organismo**: junta moléculas em um bloco completo (a lista, a barra de abas).
+- **Screen**: guarda os dados, decide as ações e a navegação. Não desenha
+  interface "na mão".
+
+## Conceitos aplicados
+
+| Onde | O quê |
+|---|---|
+| `RecipeForm` | `useState` por campo, validação e limpeza após enviar |
+| `RecipeList` | `FlatList` com `keyExtractor`, `renderItem` e `ListEmptyComponent` |
+| `(tabs)/index.tsx` | `useEffect` reagindo à mudança da lista |
+| `porcoes.tsx` | `useState` com regra de limite (nunca abaixo de zero) |
+
+## Convenções
+
+- Imports internos usam o alias `@/` (configurado no `tsconfig.json`).
+- A partir da SDK 56 o Expo Router não aceita importar de `@react-navigation/*`
+  no código da aplicação. Use `expo-router/react-navigation`,
+  `expo-router/js-tabs` ou `expo-router/js-stack`.
+- Antes de commitar: `npx tsc --noEmit` e `npx eslint .`

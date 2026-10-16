@@ -1,6 +1,8 @@
-import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
-import { PlatformPressable } from '@react-navigation/elements';
+// A partir da SDK 56 o expo-router não aceita mais importar de @react-navigation/*
+// no código da aplicação. A API é a mesma, só muda o caminho do import.
 import * as Haptics from 'expo-haptics';
+import { PlatformPressable } from 'expo-router/react-navigation';
+import type { BottomTabBarButtonProps } from 'expo-router/js-tabs';
 
 export function HapticTab(props: BottomTabBarButtonProps) {
   return (
@@ -8,7 +10,7 @@ export function HapticTab(props: BottomTabBarButtonProps) {
       {...props}
       onPressIn={(ev) => {
         if (process.env.EXPO_OS === 'ios') {
-          // Add a soft haptic feedback when pressing down on the tabs.
+          // Vibração leve ao pressionar a aba.
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
         props.onPressIn?.(ev);
