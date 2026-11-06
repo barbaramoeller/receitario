@@ -10,14 +10,19 @@ import { InputField } from '@/components/atoms/InputField';
 import { PasswordField } from '@/components/atoms/PasswordField';
 import { PrimaryButton } from '@/components/atoms/PrimaryButton';
 import { Title } from '@/components/atoms/Title';
+import { useAuth } from '@/contexts/AuthContext';
+import { getRequestErrorMessage } from '@/services/requestError';
 
 const RESTRICOES = ['Sem glúten', 'Sem lactose', 'Vegetariana', 'Vegana', 'Low carb', 'Nenhuma'];
 
 export default function Cadastro() {
+  const { cadastrar } = useAuth();
+
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [selecionadas, setSelecionadas] = useState<string[]>([]);
+  const [criando, setCriando] = useState(false);
 
   function toggle(item: string) {
     setSelecionadas((atual) =>
@@ -25,12 +30,25 @@ export default function Cadastro() {
     );
   }
 
-  function criarConta() {
+  async function criarConta() {
     if (!nome.trim() || !email.includes('@') || senha.length < 8) {
       Alert.alert('Revise os campos', 'Nome, e-mail válido e senha de 8 caracteres.');
       return;
     }
-    router.replace('/(tabs)');
+
+    setCriando(true);
+    try {
+      // Cria a conta e já entra, porque a confirmação por e-mail está desligada.
+      await cadastrar(email.trim(), senha);
+      router.replace('/(tabs)');
+    } catch (error) {
+      Alert.alert(
+        'Não foi possível criar a conta',
+        getRequestErrorMessage(error, 'Tente novamente em instantes.')
+      );
+    } finally {
+      setCriando(false);
+    }
   }
 
   return (
@@ -74,7 +92,11 @@ export default function Cadastro() {
         ))}
       </View>
 
-      <PrimaryButton title="Criar conta" onPress={criarConta} />
+      <PrimaryButton
+        title={criando ? 'Criando conta…' : 'Criar conta'}
+        onPress={criarConta}
+        disabled={criando}
+      />
     </ScrollView>
   );
 }

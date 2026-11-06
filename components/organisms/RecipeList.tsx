@@ -7,13 +7,10 @@ import { ReactElement } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { RecipeListItem } from '@/components/molecules/RecipeListItem';
+import type { Receita } from '@/types/receita';
 
-export type Receita = {
-  id: string;
-  titulo: string;
-  categoria: string;
-  tempo?: string;
-};
+// O tipo agora mora em types/receita.ts, porque a API também precisa dele.
+export type { Receita };
 
 type RecipeListProps = {
   receitas: Receita[];

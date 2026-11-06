@@ -8,18 +8,17 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { InputField } from '@/components/atoms/InputField';
 import { PrimaryButton } from '@/components/atoms/PrimaryButton';
+import type { NovaReceita } from '@/types/receita';
 
-export type NovaReceita = {
-  titulo: string;
-  categoria: string;
-  tempo: string;
-};
+export type { NovaReceita };
 
 type RecipeFormProps = {
   onSubmit: (receita: NovaReceita) => void;
+  // true enquanto a receita está sendo enviada para a API.
+  enviando?: boolean;
 };
 
-export function RecipeForm({ onSubmit }: RecipeFormProps) {
+export function RecipeForm({ onSubmit, enviando = false }: RecipeFormProps) {
   const [titulo, setTitulo] = useState('');
   const [categoria, setCategoria] = useState('');
   const [tempo, setTempo] = useState('');
@@ -75,7 +74,11 @@ export function RecipeForm({ onSubmit }: RecipeFormProps) {
 
       {erro ? <Text style={styles.erro}>{erro}</Text> : null}
 
-      <PrimaryButton title="Adicionar receita" onPress={handleSubmit} />
+      <PrimaryButton
+        title={enviando ? 'Salvando…' : 'Adicionar receita'}
+        onPress={handleSubmit}
+        disabled={enviando}
+      />
     </View>
   );
 }

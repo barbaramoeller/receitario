@@ -12,12 +12,22 @@ import { PasswordField } from '@/components/atoms/PasswordField';
 import { PrimaryButton } from '@/components/atoms/PrimaryButton';
 
 type LoginFormProps = {
-  onSubmit: (email: string) => void;
+  // Agora entrega a senha também: quem autentica é a tela, via API.
+  onSubmit: (email: string, senha: string) => void;
   onCriarConta: () => void;
   onEsqueciSenha?: () => void;
+  // Mensagem vinda da API, como "E-mail ou senha incorretos".
+  erroServidor?: string;
+  entrando?: boolean;
 };
 
-export function LoginForm({ onSubmit, onCriarConta, onEsqueciSenha }: LoginFormProps) {
+export function LoginForm({
+  onSubmit,
+  onCriarConta,
+  onEsqueciSenha,
+  erroServidor,
+  entrando = false,
+}: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
@@ -32,8 +42,11 @@ export function LoginForm({ onSubmit, onCriarConta, onEsqueciSenha }: LoginFormP
       return;
     }
     setErro('');
-    onSubmit(email);
+    onSubmit(email.trim(), senha);
   }
+
+  // O erro local tem prioridade: é o que a pessoa acabou de digitar errado.
+  const mensagemErro = erro || erroServidor || '';
 
   return (
     <View>
@@ -52,13 +65,17 @@ export function LoginForm({ onSubmit, onCriarConta, onEsqueciSenha }: LoginFormP
         onChangeText={setSenha}
       />
 
-      {erro ? <Text style={styles.erro}>{erro}</Text> : null}
+      {mensagemErro ? <Text style={styles.erro}>{mensagemErro}</Text> : null}
 
       <Text style={styles.esqueci} onPress={onEsqueciSenha}>
         Esqueci minha senha
       </Text>
 
-      <PrimaryButton title="Entrar" onPress={entrar} />
+      <PrimaryButton
+        title={entrando ? 'Entrando…' : 'Entrar'}
+        onPress={entrar}
+        disabled={entrando}
+      />
 
       <View style={styles.divisor}>
         <View style={styles.linha} />

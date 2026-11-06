@@ -3,14 +3,32 @@
 // Toda a interface do formulário fica encapsulada em LoginForm.
 
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Alert, ImageBackground, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { LoginForm } from '@/components/molecules/LoginForm';
+import { useAuth } from '@/contexts/AuthContext';
+import { getRequestErrorMessage } from '@/services/requestError';
 
 export default function Login() {
-  function entrar() {
-    // TODO: integrar com autenticação real
-    router.replace('/(tabs)');
+  const { entrar: autenticar } = useAuth();
+  const [entrando, setEntrando] = useState(false);
+  const [erroServidor, setErroServidor] = useState('');
+
+  async function entrar(email: string, senha: string) {
+    setEntrando(true);
+    setErroServidor('');
+
+    try {
+      await autenticar(email, senha);
+      router.replace('/(tabs)');
+    } catch (error) {
+      setErroServidor(
+        getRequestErrorMessage(error, 'Não foi possível entrar. Tente novamente.')
+      );
+    } finally {
+      setEntrando(false);
+    }
   }
 
   return (
@@ -31,6 +49,8 @@ export default function Login() {
           onSubmit={entrar}
           onCriarConta={() => router.push('/(auth)/cadastro')}
           onEsqueciSenha={() => Alert.alert('Recuperação de senha em breve')}
+          erroServidor={erroServidor}
+          entrando={entrando}
         />
 
         <Text style={styles.termos}>
